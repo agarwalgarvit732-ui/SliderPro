@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data: https://images.unsplash.com; connect-src 'self' blob:;">
+    <meta name="description" content="Secure, responsive, touch-enabled high-performance image slider with zero vulnerabilities.">
+    <title>Pro Image Slider</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar" role="banner">
+        <div class="nav-container">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i data-lucide="images"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">SliderPro</span>
+                    <span class="brand-badge">Secure</span>
+                </div>
+            </div>
+
+            <!-- Real-time safe search filter -->
+            <div class="search-wrapper">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="search" id="searchInput" class="search-input" placeholder="Search slides by title..." autocomplete="off" spellcheck="false" aria-label="Search slides">
+                <button type="button" id="clearSearchBtn" class="clear-search-btn" title="Clear search" aria-label="Clear search" hidden>
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="nav-actions">
+                <button type="button" id="loadSamplesBtn" class="btn btn-outline" title="Reset to default sample images">
+                    <i data-lucide="sparkles"></i>
+                    <span>Samples</span>
+                </button>
+                <button type="button" id="shortcutsBtn" class="btn btn-icon" title="Keyboard Shortcuts" aria-label="View keyboard shortcuts">
+                    <i data-lucide="keyboard"></i>
+                </button>
+                <button type="button" id="themeToggleBtn" class="btn btn-icon" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+                    <i data-lucide="sun" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Drag and Drop Upload Zone -->
+        <section class="upload-section" aria-label="Image Upload Section">
+            <div class="upload-box" id="dropZone" tabindex="0" role="button" aria-label="Upload images: drag and drop files here or click to browse">
+                <div class="upload-icon-wrapper">
+                    <i data-lucide="cloud-upload" class="upload-icon"></i>
+                </div>
+                <h2 class="upload-heading">Drag &amp; Drop Images Here</h2>
+                <p class="upload-desc">or <span class="browse-link">browse files</span> from your device</p>
+                <div class="upload-badges">
+                    <span class="badge">JPG</span>
+                    <span class="badge">PNG</span>
+                    <span class="badge">WEBP</span>
+                    <span class="badge">GIF</span>
+                    <span class="badge">AVIF</span>
+                    <span class="badge-dim">Max 25MB each</span>
+                </div>
+                <!-- Hidden file input for safe file handling -->
+                <input type="file" id="fileInput" multiple accept="image/png, image/jpeg, image/webp, image/gif, image/avif" class="file-input-hidden" aria-label="File upload input">
+            </div>
+        </section>
+
+        <!-- Slider Section -->
+        <section class="slider-section" aria-label="Image Gallery Carousel">
+            <!-- Top Slider Toolbar -->
+            <div class="slider-toolbar">
+                <div class="slide-meta">
+                    <h3 id="currentSlideTitle" class="slide-title">Loading...</h3>
+                    <span id="currentSlideDetails" class="slide-details">Image details</span>
+                </div>
+
+                <div class="slider-controls-group">
+                    <!-- Transition effect picker -->
+                    <div class="control-pill" title="Transition Style">
+                        <i data-lucide="sliders-horizontal" class="pill-icon"></i>
+                        <select id="transitionSelect" class="pill-select" aria-label="Transition effect">
+                            <option value="slide">Slide Effect</option>
+                            <option value="fade">Fade Effect</option>
+                            <option value="zoom">Zoom Effect</option>
+                        </select>
+                    </div>
+
+                    <!-- Autoplay toggle & speed -->
+                    <button type="button" id="autoplayToggleBtn" class="btn btn-pill" title="Toggle Autoplay (Spacebar)">
+                        <i data-lucide="play" id="autoplayIcon"></i>
+                        <span id="autoplayText">Play</span>
+                    </button>
+
+                    <!-- Fullscreen Toggle -->
+                    <button type="button" id="fullscreenBtn" class="btn btn-pill" title="Fullscreen Mode (F)">
+                        <i data-lucide="maximize" id="fullscreenIcon"></i>
+                        <span class="btn-text-desktop">Fullscreen</span>
+                    </button>
+
+                    <!-- Download Current Image -->
+                    <button type="button" id="downloadBtn" class="btn btn-pill" title="Download Current Image">
+                        <i data-lucide="download"></i>
+                        <span class="btn-text-desktop">Save</span>
+                    </button>
+
+                    <!-- Delete Current Slide -->
+                    <button type="button" id="deleteBtn" class="btn btn-pill btn-danger" title="Delete current slide (Delete key)">
+                        <i data-lucide="trash-2"></i>
+                        <span class="btn-text-desktop">Delete</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Slider Container -->
+            <div class="slider-wrapper" id="sliderWrapper">
+                <div class="slider-viewport" id="sliderViewport" role="region" aria-roledescription="carousel" aria-label="Main Image Slider" tabindex="0">
+                    
+                    <!-- Track containing slides -->
+                    <div class="slider-track" id="sliderTrack">
+                        <!-- Slides rendered dynamically by safe JS methods -->
+                    </div>
+
+                    <!-- Navigation Arrow: Previous -->
+                    <button type="button" id="prevBtn" class="slider-nav-btn prev-btn" aria-label="Previous Slide (Left Arrow)">
+                        <i data-lucide="chevron-left"></i>
+                    </button>
+
+                    <!-- Navigation Arrow: Next -->
+                    <button type="button" id="nextBtn" class="slider-nav-btn next-btn" aria-label="Next Slide (Right Arrow)">
+                        <i data-lucide="chevron-right"></i>
+                    </button>
+
+                    <!-- Floating Slide Counter -->
+                    <div class="slide-counter" id="slideCounter" aria-live="polite">
+                        1 / 5
+                    </div>
+
+                    <!-- Autoplay Progress Bar -->
+                    <div class="slider-progress-container" aria-hidden="true">
+                        <div class="slider-progress-bar" id="progressBar"></div>
+                    </div>
+                </div>
+
+                <!-- Dot Pagination -->
+                <div class="slider-dots" id="sliderDots" role="tablist" aria-label="Slide indicators">
+                    <!-- Dots dynamically generated -->
+                </div>
+            </div>
+
+            <!-- Thumbnail Strip -->
+            <div class="thumbnails-container">
+                <div class="thumbnails-track" id="thumbnailsTrack" role="tablist" aria-label="Image Thumbnails">
+                    <!-- Thumbnails dynamically generated -->
+                </div>
+            </div>
+
+            <!-- Empty State (Shown when all images are deleted) -->
+            <div class="empty-state" id="emptyState" hidden>
+                <div class="empty-icon">
+                    <i data-lucide="image-off"></i>
+                </div>
+                <h3>No Images in Slider</h3>
+                <p>Drag and drop images into the box above, or reload the sample gallery.</p>
+                <button type="button" id="reloadSamplesEmptyBtn" class="btn btn-primary">
+                    <i data-lucide="refresh-cw"></i>
+                    <span>Reload Sample Photos</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer" aria-live="assertive" aria-atomic="true"></div>
+
+    <!-- Keyboard Shortcuts Modal Dialog -->
+    <dialog class="modal-dialog" id="shortcutsModal" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-title">
+                    <i data-lucide="keyboard" class="modal-icon"></i>
+                    <h2 id="modalTitle">Keyboard Shortcuts</h2>
+                </div>
+                <button type="button" id="closeModalBtn" class="btn-close" aria-label="Close dialog">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul class="shortcuts-list">
+                    <li><kbd>&larr;</kbd><span>Previous slide</span></li>
+                    <li><kbd>&rarr;</kbd><span>Next slide</span></li>
+                    <li><kbd>Space</kbd><span>Play / Pause autoplay</span></li>
+                    <li><kbd>F</kbd><span>Toggle Fullscreen</span></li>
+                    <li><kbd>Home</kbd><span>Go to first slide</span></li>
+                    <li><kbd>End</kbd><span>Go to last slide</span></li>
+                    <li><kbd>Del</kbd><span>Delete active slide</span></li>
+                    <li><kbd>Esc</kbd><span>Exit fullscreen / Close modal</span></li>
+                    <li><kbd>/</kbd><span>Focus search bar</span></li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="modalOkBtn" class="btn btn-primary">Got it</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Scripts: Lucide Icons & Safe App JS -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="index.js"></script>
+</body>
+
+</html>
